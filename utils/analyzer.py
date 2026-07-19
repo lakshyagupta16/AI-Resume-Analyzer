@@ -1,3 +1,4 @@
+import json
 import os
 from dotenv import load_dotenv
 from google import genai
@@ -15,15 +16,24 @@ def analyze_resume(resume_text):
     prompt = f"""
 You are an expert ATS Resume Analyzer.
 
-Analyze the following resume and return the response in this format.
+Analyze the following resume.
 
-ATS Score:
-Resume Summary:
-Strengths:
-Weaknesses:
-Missing Skills:
-Suggestions:
-Interview Questions:
+Return ONLY valid JSON.
+
+Do not write markdown.
+Do not use triple backticks.
+
+Use exactly this format:
+
+{{
+    "ats_score": 0,
+    "summary": "",
+    "strengths": [],
+    "weaknesses": [],
+    "missing_skills": [],
+    "suggestions": [],
+    "interview_questions": []
+}}
 
 Resume:
 
@@ -31,8 +41,8 @@ Resume:
 """
 
     response = client.models.generate_content(
-        model="gemini-3.5-flash",
+        model="gemini-flash-latest",
         contents=prompt,
     )
 
-    return response.text
+    return json.loads(response.text)
