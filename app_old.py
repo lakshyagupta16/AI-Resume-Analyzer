@@ -1,9 +1,7 @@
 from components.score_card import display_score
-from components.summary_card import summary_card
 import streamlit as st
 from utils.pdf_reader import extract_text
 from utils.analyzer import analyze_resume
-from components.circular_score import circular_score
 
 # Page Configuration
 st.set_page_config(
@@ -19,20 +17,15 @@ load_css()
 
 # Title
 st.markdown("""
-<div class="hero">
-
-<h1>🤖 AI Resume Analyzer</h1>
-
-<p>
-Smart Resume Intelligence powered by
-<span>Google Gemini AI</span>
-</p>
-
+<div class="header-box">
+    <div class="header-title">
+        📄 AI Resume Analyzer
+    </div>
+    <div class="header-subtitle">
+        AI-Powered Resume Evaluation • ATS Score • Resume Insights • Interview Preparation
+    </div>
 </div>
 """, unsafe_allow_html=True)
-
-st.markdown("## 📤 Upload Your Resume")
-st.caption("Supported format: PDF")
 # Upload PDF
 uploaded_file = st.file_uploader(
     "Choose your Resume (PDF)",
@@ -55,28 +48,16 @@ if uploaded_file is not None:
 
         with st.spinner("Analyzing your resume..."):
 
-            try:
-                analysis = analyze_resume(resume_text)
-
-            except Exception as e:
-                st.exception(e)
-                st.stop()
+            analysis = analyze_resume(resume_text)
 
         # ATS Score
         col1, col2 = st.columns([1, 2])
 
         with col1:
-            circular_score(analysis["ats_score"])
+            display_score(analysis["ats_score"])
 
         with col2:
-            st.markdown(f"""
-            <div class="dashboard-card">
-                <div class="card-title">🧠 AI Summary</div>
-                <div class="card-body">
-                    {analysis["summary"]}
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
+            st.info(analysis["summary"])
 
         
 

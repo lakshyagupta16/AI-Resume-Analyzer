@@ -1,48 +1,88 @@
 import json
 import os
+from unittest import result
+from urllib import response
 from dotenv import load_dotenv
 from google import genai
 
-# Load API key from .env
 load_dotenv()
 
 client = genai.Client(
     api_key=os.getenv("GEMINI_API_KEY")
 )
-
-
 def analyze_resume(resume_text):
 
+    # Limit resume size to avoid sending extremely large requests
+    resume_text = resume_text[:12000]
+
+    # Debug: Print resume length in terminal
+    print("Resume length:", len(resume_text))
+
     prompt = f"""
-You are an expert ATS Resume Analyzer.
+    You are an experienced Applicant Tracking System (ATS) and Senior Technical Recruiter.
 
-Analyze the following resume.
+    Analyze the resume exactly like a modern ATS would.
 
-Return ONLY valid JSON.
+    Evaluate these categories independently:
 
-Do not write markdown.
-Do not use triple backticks.
+    1. Resume Formatting (20 marks)
+    2. Technical Skills (25 marks)
+    3. Projects (25 marks)
+    4. Experience / Internships (15 marks)
+    5. Education & Certifications (15 marks)
 
-Use exactly this format:
+    Rules:
 
-{{
-    "ats_score": 0,
-    "summary": "",
-    "strengths": [],
-    "weaknesses": [],
-    "missing_skills": [],
-    "suggestions": [],
-    "interview_questions": []
-}}
+    • Give realistic scores.
+    • Do NOT give average/default scores.
+    • If a section is excellent, give high marks.
+    • If a section is missing, deduct marks.
+    • ATS Score must equal the sum of all section scores.
 
-Resume:
+    Return ONLY valid JSON.
 
-{resume_text}
-"""
+    {{
+        "ats_score": 0,
 
-    response = client.models.generate_content(
-        model="gemini-flash-latest",
-        contents=prompt,
-    )
+        "section_scores": {{
+            "formatting": 0,
+            "skills": 0,
+            "projects": 0,
+            "experience": 0,
+            "education": 0
+        }},
 
-    return json.loads(response.text)
+        "summary": "",
+
+        "strengths": [],
+
+        "weaknesses": [],
+
+        "missing_skills": [],
+
+        "suggestions": [],
+
+        "interview_questions": []
+    }}
+
+    Resume:
+
+    {resume_text}
+    """
+
+    try:
+        response = client.models.generate_content(
+            model="gemini-3.1-flash-lite",
+            contents=prompt,
+        )
+
+        print("========== GEMINI RESPONSE ==========")
+        print(response.text)
+        print("=====================================")
+
+        result = json.loads(response.text)
+
+        return result
+
+    except Exception as e:
+        raise Exception(f"Gemini API Error: {e}")
