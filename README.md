@@ -1,5 +1,7 @@
 # 🤖 AI Resume Analyzer
+## 📸 Application Preview
 
+![Application Screenshot](screenshots/home.png)
 An AI-powered Resume Analyzer built using **Python**, **Streamlit**, **Google Gemini AI**, and **PyPDF2**.
 
 The application analyzes a user's resume and provides:
